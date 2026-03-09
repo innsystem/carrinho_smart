@@ -86,8 +86,8 @@
             background: #fff;
             border-radius: 12px;
             border: 1px solid #e8e8e8;
-            padding: 14px;
-            margin-bottom: 10px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
             transition: box-shadow 0.2s;
         }
         .item-card:active {
@@ -96,13 +96,13 @@
 
         /* Botões +/- */
         .btn-qty {
-            width: 38px;
-            height: 38px;
+            width: 30px;
+            height: 30px;
             padding: 0;
             border-radius: 50%;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
-            line-height: 38px;
+            line-height: 30px;
             text-align: center;
             display: inline-flex;
             align-items: center;
@@ -111,12 +111,13 @@
 
         /* Input quantidade */
         .qty-input {
-            width: 52px;
+            width: 38px;
             text-align: center;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.9rem;
             border: none;
             background: transparent;
+            appearance: textfield;
             -moz-appearance: textfield;
         }
         .qty-input::-webkit-inner-spin-button,
@@ -128,9 +129,39 @@
         /* Input preço */
         .preco-input {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.85rem;
             text-align: right;
+            appearance: textfield;
             -moz-appearance: textfield;
+        }
+
+        .shopping-line {
+            display: grid;
+            grid-template-columns: 58px minmax(110px,1fr) 112px 110px 88px 26px;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .order-select {
+            height: 32px;
+            font-size: 0.8rem;
+            padding: 0 4px;
+        }
+
+        .item-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .subtotal-mini {
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: right;
+            white-space: nowrap;
         }
         .preco-input::-webkit-inner-spin-button,
         .preco-input::-webkit-outer-spin-button {

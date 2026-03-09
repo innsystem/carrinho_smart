@@ -27,36 +27,52 @@
         </div>
     </div>
 
-    <!-- Lista de itens -->
+    <!-- Busca rápida -->
+    <div class="mb-3">
+        <div class="input-group input-group-sm">
+            <span class="input-group-text">🔎</span>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Pesquisar item..."
+                   x-model.trim="buscaRapida"
+                   autocomplete="off">
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    x-show="buscaRapida.length > 0"
+                    @click="buscaRapida = ''">
+                Limpar
+            </button>
+        </div>
+    </div>
+
+    <!-- Lista de itens compacta em linha única -->
     <div id="lista-itens">
         @forelse($despesa->itens as $item)
-            <div class="item-card" id="item-{{ $item->id }}">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <strong class="fs-6">{{ $item->nome }}</strong>
-                    <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-touch"
-                            style="min-width:32px; min-height:32px;"
-                            @click="removerItem({{ $item->id }}, '{{ addslashes($item->nome) }}')">
-                        ✕
-                    </button>
-                </div>
-                <div class="d-flex align-items-center justify-content-between gap-2">
-                    <!-- Quantidade -->
-                    <div class="d-flex align-items-center gap-1">
-                        <button class="btn btn-outline-danger btn-qty" type="button"
-                                @click="diminuirQtd({{ $item->id }})">−</button>
+            <div class="item-card" id="item-{{ $item->id }}" x-show="itemVisivel({{ $item->id }})" x-cloak>
+                <div class="shopping-line">
+                    <select class="form-select order-select"
+                            @change="alterarOrdem({{ $item->id }}, parseInt($event.target.value || 99))">
+                        @for($i = 1; $i <= 99; $i++)
+                            <option value="{{ $i }}" {{ ($item->ordem ?? 99) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
+
+                    <span class="item-name" title="{{ $item->nome }}">{{ $item->nome }}</span>
+
+                    <div class="d-flex align-items-center justify-content-center gap-1">
+                        <button class="btn btn-outline-success btn-qty" type="button"
+                                @click="aumentarQtd({{ $item->id }})">+</button>
                         <input type="number"
                                class="qty-input"
                                x-bind:value="itens[{{ $item->id }}]?.quantidade"
                                @change="atualizarItem({{ $item->id }}, 'quantidade', parseFloat($event.target.value) || 1)"
-                               min="0.5" step="1"
-                               inputmode="numeric">
-                        <button class="btn btn-outline-success btn-qty" type="button"
-                                @click="aumentarQtd({{ $item->id }})">+</button>
+                               min="0.5" step="1" inputmode="numeric">
+                        <button class="btn btn-outline-danger btn-qty" type="button"
+                                @click="diminuirQtd({{ $item->id }})">−</button>
                     </div>
 
-                    <!-- Preço -->
-                    <div class="input-group" style="max-width: 140px;">
-                        <span class="input-group-text px-2" style="font-size:0.85rem;">R$</span>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text">R$</span>
                         <input type="text"
                                class="form-control preco-input"
                                inputmode="decimal"
@@ -66,13 +82,16 @@
                                @input="mascaraPrecoEl($event.target)"
                                placeholder="0.00">
                     </div>
-                </div>
 
-                <!-- Subtotal -->
-                <div class="text-end mt-2">
-                    <small class="text-muted">
-                        Subtotal: <strong class="text-dark">R$ <span x-text="formatarMoeda(calcularSubtotal({{ $item->id }}))"></span></strong>
-                    </small>
+                    <div class="subtotal-mini">
+                        R$ <span x-text="formatarMoeda(calcularSubtotal({{ $item->id }}))"></span>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-touch"
+                            style="min-width:26px; min-height:26px;"
+                            @click="removerItem({{ $item->id }}, '{{ addslashes($item->nome) }}')">
+                        ✕
+                    </button>
                 </div>
             </div>
         @empty
@@ -82,6 +101,12 @@
                 <p class="text-muted mb-3">Toque no botão <strong class="text-success">✚</strong> no topo para adicionar produtos.</p>
             </div>
         @endforelse
+
+        @if($despesa->itens->count() > 0)
+            <div class="text-center py-4" x-show="totalFiltrados === 0" x-cloak>
+                <small class="text-muted">Nenhum item compatível com a pesquisa.</small>
+            </div>
+        @endif
     </div>
 
     <!-- Excluir despesa -->
@@ -115,8 +140,12 @@
     </div>
 </div>
 
+<script type="application/json" id="itens-iniciais-json">{!! $despesa->itens->map(fn($item) => ['id' => $item->id, 'ordem' => (int) ($item->ordem ?? 99), 'nome' => $item->nome, 'quantidade' => (float) $item->quantidade, 'preco_unitario' => (float) $item->preco_unitario, 'subtotal' => (float) $item->subtotal])->values()->toJson() !!}</script>
+
 @push('scripts')
 <script>
+const itensIniciais = JSON.parse(document.getElementById('itens-iniciais-json')?.textContent || '[]');
+
 // === SWEETALERT: Adicionar Produto ===
 function abrirAdicionarProduto() {
     Swal.fire({
@@ -218,21 +247,20 @@ function listaCompras() {
     return {
         itens: {},
         total: 0,
+        buscaRapida: '',
 
         get totalItens() {
             return Object.keys(this.itens).length;
         },
 
+        get totalFiltrados() {
+            return Object.values(this.itens).filter((item) => this.nomeCompativel(item.nome)).length;
+        },
+
         init() {
-            @foreach($despesa->itens as $item)
-                this.itens[{{ $item->id }}] = {
-                    id: {{ $item->id }},
-                    nome: @json($item->nome),
-                    quantidade: {{ $item->quantidade + 0 }},
-                    preco_unitario: {{ $item->preco_unitario + 0 }},
-                    subtotal: {{ $item->subtotal + 0 }}
-                };
-            @endforeach
+            itensIniciais.forEach((item) => {
+                this.itens[item.id] = item;
+            });
             this.calcularTotal();
         },
 
@@ -249,6 +277,24 @@ function listaCompras() {
 
         formatarMoeda(valor) {
             return parseFloat(valor || 0).toFixed(2).replace('.', ',');
+        },
+
+        normalizarTexto(valor) {
+            return (valor || '')
+                .toString()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        },
+
+        nomeCompativel(nome) {
+            if (!this.buscaRapida) return true;
+            return this.normalizarTexto(nome).includes(this.normalizarTexto(this.buscaRapida));
+        },
+
+        itemVisivel(itemId) {
+            if (!this.itens[itemId]) return false;
+            return this.nomeCompativel(this.itens[itemId].nome);
         },
 
         formatarPrecoInput(itemId) {
@@ -293,6 +339,12 @@ function listaCompras() {
             } catch (error) {
                 console.error('Erro ao salvar:', error);
             }
+        },
+
+        async alterarOrdem(itemId, novaOrdem) {
+            await this.salvarItem(itemId, 'ordem', novaOrdem);
+            // Reposiciona visualmente pela nova ordem
+            // window.location.reload();
         },
 
         async atualizarItem(itemId, campo, valor) {

@@ -31,8 +31,9 @@ class DespesaController extends Controller
             ->first();
 
         if ($ultimaDespesa) {
-            foreach ($ultimaDespesa->itens as $item) {
+            foreach ($ultimaDespesa->itens()->orderBy('ordem')->orderBy('id')->get() as $item) {
                 $despesa->itens()->create([
+                    'ordem' => $item->ordem,
                     'nome' => $item->nome,
                     'quantidade' => $item->quantidade,
                     'preco_unitario' => 0, // Preço zerado, usuário preenche
@@ -51,7 +52,9 @@ class DespesaController extends Controller
             abort(403);
         }
 
-        $despesa->load('itens');
+        $despesa->load(['itens' => function ($query) {
+            $query->orderBy('ordem')->orderBy('id');
+        }]);
         return view('despesas.show', compact('despesa'));
     }
 

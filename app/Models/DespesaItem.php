@@ -9,9 +9,10 @@ class DespesaItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['despesa_id', 'nome', 'quantidade', 'preco_unitario', 'subtotal'];
+    protected $fillable = ['despesa_id', 'ordem', 'nome', 'quantidade', 'preco_unitario', 'subtotal'];
 
     protected $casts = [
+        'ordem' => 'integer',
         'quantidade' => 'decimal:3',
         'preco_unitario' => 'decimal:2',
         'subtotal' => 'decimal:2',
@@ -30,6 +31,13 @@ class DespesaItem extends Model
 
         static::saving(function ($item) {
             $item->subtotal = $item->quantidade * $item->preco_unitario;
+        });
+
+        static::creating(function ($item) {
+            if (is_null($item->ordem)) {
+                $proximaOrdem = static::where('despesa_id', $item->despesa_id)->max('ordem');
+                $item->ordem = min(99, (int) $proximaOrdem + 1);
+            }
         });
 
         static::saved(function ($item) {
