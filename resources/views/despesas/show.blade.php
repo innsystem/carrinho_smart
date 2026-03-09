@@ -131,8 +131,7 @@
         <div class="container">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <small class="text-muted d-block" style="line-height:1;">Total</small>
-                    <span class="fs-4 fw-bold text-success">
+                    <span class="fs-6 fw-bold text-success">
                         R$ <span x-text="formatarMoeda(total)"></span>
                     </span>
                 </div>

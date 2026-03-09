@@ -37,7 +37,7 @@
             z-index: 1030;
             height: var(--header-height);
             background: #fff;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #c3c3c3;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
@@ -63,8 +63,8 @@
 
         /* Botões touch-friendly */
         .btn-touch {
-            min-width: 44px;
-            min-height: 44px;
+            min-width: 33px;
+            min-height: 33px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -78,7 +78,7 @@
             right: 0;
             background: #fff;
             border-top: 2px solid #198754;
-            padding: 12px 16px;
+            padding: 8px 16px;
             box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
             z-index: 1020;
         }
@@ -139,7 +139,7 @@
 
         .shopping-line {
             display: grid;
-            grid-template-columns: minmax(130px,1fr) 112px 110px 88px 26px;
+            grid-template-columns: minmax(160px,1fr) 112px 110px 88px 26px;
             gap: 6px;
             align-items: center;
         }
