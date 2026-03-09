@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Carrinho Smart')</title>
+
+    <link rel="icon" href="{{ asset('shopping-cart.png') }}">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -197,7 +199,7 @@
     @if(auth()->check())
         <nav class="navbar-fixed">
             <div class="container">
-                <a class="navbar-brand" href="{{ route('dashboard') }}">🛒 Carrinho Smart</a>
+                <a class="navbar-brand" href="{{ route('dashboard') }}">Carrinho Smart</a>
                 <div class="navbar-actions">
                     @yield('header-actions')
                     <form action="{{ route('logout') }}" method="POST" class="d-inline">
