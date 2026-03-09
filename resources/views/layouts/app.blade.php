@@ -88,7 +88,7 @@
             background: #fff;
             border-radius: 12px;
             border: 1px solid #e8e8e8;
-            padding: 8px 10px;
+            padding: 12px 14px;
             margin-bottom: 6px;
             transition: box-shadow 0.2s;
         }
@@ -151,7 +151,7 @@
         }
 
         .item-name {
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             font-weight: 600;
             line-height: 1.1;
             white-space: nowrap;

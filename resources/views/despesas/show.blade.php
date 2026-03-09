@@ -49,29 +49,25 @@
     <div id="lista-itens">
         @forelse($despesa->itens as $item)
             <div class="item-card" id="item-{{ $item->id }}" x-show="itemVisivel({{ $item->id }})" x-cloak>
-                <div class="shopping-line">
-                    <select class="form-select order-select"
-                            @change="alterarOrdem({{ $item->id }}, parseInt($event.target.value || 99))">
-                        @for($i = 1; $i <= 99; $i++)
-                            <option value="{{ $i }}" {{ ($item->ordem ?? 99) == $i ? 'selected' : '' }}>{{ $i }}</option>
-                        @endfor
-                    </select>
-
+                <div class="shopping-line mb-3">
                     <span class="item-name" title="{{ $item->nome }}">{{ $item->nome }}</span>
-
+                    
                     <div class="d-flex align-items-center justify-content-center gap-1">
-                        <button class="btn btn-outline-success btn-qty" type="button"
+                        <button class="btn btn-success btn-qty" type="button"
                                 @click="aumentarQtd({{ $item->id }})">+</button>
                         <input type="number"
                                class="qty-input"
                                x-bind:value="itens[{{ $item->id }}]?.quantidade"
                                @change="atualizarItem({{ $item->id }}, 'quantidade', parseFloat($event.target.value) || 1)"
                                min="0.5" step="1" inputmode="numeric">
-                        <button class="btn btn-outline-danger btn-qty" type="button"
+                        <button class="btn btn-danger btn-qty" type="button"
                                 @click="diminuirQtd({{ $item->id }})">−</button>
                     </div>
+                </div>
 
-                    <div class="input-group input-group-sm">
+                <div class="d-flex align-items-center justify-content-between gap-3">
+
+                    <div class="input-group input-group-sm" style="max-width:150px;">
                         <span class="input-group-text">R$</span>
                         <input type="text"
                                class="form-control preco-input"
@@ -86,6 +82,14 @@
                     <div class="subtotal-mini">
                         R$ <span x-text="formatarMoeda(calcularSubtotal({{ $item->id }}))"></span>
                     </div>
+
+                    
+                    <select class="form-select order-select"
+                            @change="alterarOrdem({{ $item->id }}, parseInt($event.target.value || 99))">
+                        @for($i = 1; $i <= 99; $i++)
+                            <option value="{{ $i }}" {{ ($item->ordem ?? 99) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                        @endfor
+                    </select>
 
                     <button type="button" class="btn btn-sm btn-link text-danger p-0 btn-touch"
                             style="min-width:26px; min-height:26px;"
