@@ -139,7 +139,7 @@
 
         .shopping-line {
             display: grid;
-            grid-template-columns: 58px minmax(110px,1fr) 112px 110px 88px 26px;
+            grid-template-columns: minmax(130px,1fr) 112px 110px 88px 26px;
             gap: 6px;
             align-items: center;
         }
