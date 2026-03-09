@@ -36,7 +36,7 @@ class DespesaController extends Controller
                     'ordem' => $item->ordem,
                     'nome' => $item->nome,
                     'quantidade' => $item->quantidade,
-                    'preco_unitario' => 0, // Preço zerado, usuário preenche
+                    'preco_unitario' => $item->preco_unitario, // Preço zerado, usuário preenche
                     'subtotal' => 0,
                 ]);
             }
