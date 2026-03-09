@@ -58,8 +58,8 @@
                         <input type="number"
                                class="qty-input"
                                x-bind:value="itens[{{ $item->id }}]?.quantidade"
-                               @change="atualizarItem({{ $item->id }}, 'quantidade', parseFloat($event.target.value) || 1)"
-                               min="0.5" step="1" inputmode="numeric">
+                               @change="atualizarQuantidadeManual({{ $item->id }}, $event.target.value)"
+                               min="0" step="1" inputmode="numeric">
                         <button class="btn btn-danger btn-qty" type="button"
                                 @click="diminuirQtd({{ $item->id }})">−</button>
                     </div>
@@ -159,9 +159,15 @@ function abrirAdicionarProduto() {
                 '<input id="swal-nome" class="swal2-input w-100 m-0" placeholder="Ex: Arroz, Feijão..." autocomplete="off">' +
             '</div>' +
             '<div class="d-flex gap-2">' +
+                '<div style="width: 90px;">' +
+                    '<label class="form-label text-start d-block fw-bold">Ordem</label>' +
+                    '<select id="swal-ordem" class="swal2-select w-100 m-0">' +
+                        Array.from({ length: 99 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('') +
+                    '</select>' +
+                '</div>' +
                 '<div class="flex-fill">' +
                     '<label class="form-label text-start d-block fw-bold">Qtd</label>' +
-                    '<input id="swal-qtd" type="number" class="swal2-input w-100 m-0" value="1" min="0.5" step="1" inputmode="numeric">' +
+                    '<input id="swal-qtd" type="number" class="swal2-input w-100 m-0" value="1" min="0" step="1" inputmode="numeric">' +
                 '</div>' +
                 '<div class="flex-fill">' +
                     '<label class="form-label text-start d-block fw-bold">Preço (R$)</label>' +
@@ -185,6 +191,7 @@ function abrirAdicionarProduto() {
             }
             return {
                 nome: nome,
+                ordem: parseInt(document.getElementById('swal-ordem').value, 10) || 99,
                 quantidade: parseFloat(document.getElementById('swal-qtd').value) || 1,
                 preco_unitario: parseFloat(document.getElementById('swal-preco').value) || 0
             };
@@ -356,8 +363,18 @@ function listaCompras() {
             await this.salvarItem(itemId, campo, valor);
         },
 
+        async atualizarQuantidadeManual(itemId, valor) {
+            const quantidade = Math.max(0, parseInt(valor, 10) || 0);
+            this.itens[itemId].quantidade = quantidade;
+            const el = document.querySelector(`#item-${itemId} .qty-input`);
+            if (el) el.value = quantidade;
+            this.calcularTotal();
+            await this.salvarItem(itemId, 'quantidade', quantidade);
+        },
+
         async aumentarQtd(itemId) {
-            const novaQtd = (parseFloat(this.itens[itemId].quantidade) || 0) + 1;
+            const atual = parseInt(this.itens[itemId].quantidade, 10) || 0;
+            const novaQtd = atual + 1;
             this.itens[itemId].quantidade = novaQtd;
             this.calcularTotal();
             // Atualiza o input de quantidade visualmente
@@ -368,7 +385,8 @@ function listaCompras() {
         },
 
         async diminuirQtd(itemId) {
-            const novaQtd = Math.max(0.5, (parseFloat(this.itens[itemId].quantidade) || 0) - 1);
+            const atual = parseInt(this.itens[itemId].quantidade, 10) || 0;
+            const novaQtd = Math.max(0, atual - 1);
             this.itens[itemId].quantidade = novaQtd;
             this.calcularTotal();
             const el = document.querySelector(`#item-${itemId} .qty-input`);

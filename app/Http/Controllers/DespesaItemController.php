@@ -18,7 +18,7 @@ class DespesaItemController extends Controller
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'ordem' => 'nullable|integer|min:1|max:99',
-            'quantidade' => 'nullable|numeric|min:0.001',
+            'quantidade' => 'nullable|integer|min:0',
             'preco_unitario' => 'nullable|numeric|min:0',
         ]);
 
@@ -50,7 +50,7 @@ class DespesaItemController extends Controller
         $validated = $request->validate([
             'nome' => 'sometimes|string|max:255',
             'ordem' => 'sometimes|integer|min:1|max:99',
-            'quantidade' => 'sometimes|numeric|min:0.001',
+            'quantidade' => 'sometimes|integer|min:0',
             'preco_unitario' => 'sometimes|numeric|min:0',
         ]);
 
